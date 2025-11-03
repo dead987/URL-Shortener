@@ -1,0 +1,27 @@
+<div className=" ">
+        <nav className="flex bg-transparent h-12 border-2 border-gray-400 rounded-4xl  items-center justify-between mr-80 ml-80 mt-5">
+            <ul className="flex items-center justify-center pl-10">
+            <li><a href="#" className="text-black hover:text-yellow-500">Logo</a></li>
+        </ul>
+        <ul className="flex space-x-10  items-center justify-center text-lg font-semibold">
+            <li><a href="#" className="text-black hover:text-yellow-500">Home</a></li>
+            <li><a href="#" className="text-black hover:text-yellow-500">About</a></li>
+            <li><a href="#" className="text-black hover:text-yellow-500">Services</a></li>
+            
+        </ul>
+        <div className="flex items-center justify-center pr-10">
+            {/* <li><a href="#" className="text-black hover:text-yellow-500">Contact Us</a></li> */}
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-yellow-500">Contact Us</button>
+        </div>
+        </nav>
+    </div>
+
+    const Header = () => {
+  return (
+    <>
+
+    
+    </>
+  )
+}
+export default Header;
