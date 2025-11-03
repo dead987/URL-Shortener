@@ -17,13 +17,10 @@ export const useURL = () => {
 
       const getBrand = (hostname) => {
         try {
-          // First check for specific domains that need special handling
-          if (hostname.endsWith('unsplash.com')) {
-            return 'Unsplash';
-          }
-          
-          // Domain-specific brand mapping for other sites
+          // Domain-specific brand mapping
           const brandMap = {
+            'unsplash.com': 'Unsplash',
+            'images.unsplash.com': 'Unsplash',
             'amazon.com': 'Amazon',
             'amazon.in': 'Amazon',
             'flipkart.com': 'Flipkart',
