@@ -9,15 +9,17 @@ export const useURL = () => {
   const [urls, setUrls] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
 
+  // ✅ Normalize BASE_URL once so it's always safe
+  const BASE = (import.meta.env.VITE_BASE_URL || "").replace(/\/?$/, '/');
+
   const fetchUrls = async () => {
     try {
       setFetchLoading(true);
-      const data = await getAllUrls();      // Normalize response into objects with shortUrl and bigUrl
+      const data = await getAllUrls();      
       let normalized = [];
 
       const getBrand = (hostname) => {
         try {
-          // Domain-specific brand mapping
           const brandMap = {
             'unsplash.com': 'Unsplash',
             'images.unsplash.com': 'Unsplash',
@@ -27,18 +29,14 @@ export const useURL = () => {
             'pexels.com': 'Pexels'
           };
           
-          // Check if the hostname matches or contains any of our known domains
           for (const [domain, brand] of Object.entries(brandMap)) {
             if (hostname === domain || hostname.includes(domain)) {
               return brand;
             }
           }
-          
-          // Default case: use the second-to-last part of the hostname
+
           const parts = hostname.split('.');
           const brand = parts.length >= 2 ? parts[parts.length - 2] : hostname;
-          
-          // Capitalize first letter
           return brand.charAt(0).toUpperCase() + brand.slice(1);
         } catch (e) {
           return hostname || 'misc';
@@ -62,12 +60,10 @@ export const useURL = () => {
 
           const format = (s) => {
             if (!s) return s;
-            // remove leftover tokens that look like IDs
             if (idLike(s)) return '';
             return s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ').trim();
           };
 
-          // 1) prefer the first meaningful segment (often product slug on ecommerce sites)
           for (let seg of pathParts) {
             const s = cleanSeg(seg);
             if (!s) continue;
@@ -79,7 +75,6 @@ export const useURL = () => {
             }
           }
 
-          // 2) fallback to the last meaningful segment
           for (let i = pathParts.length - 1; i >= 0; i--) {
             const s = cleanSeg(pathParts[i]);
             if (!s) continue;
@@ -89,7 +84,6 @@ export const useURL = () => {
             }
           }
 
-          // 3) fallback to first cleaned segment
           if (pathParts.length > 0) {
             const s = cleanSeg(pathParts[0]);
             const f = format(s);
@@ -104,7 +98,7 @@ export const useURL = () => {
 
       if (Array.isArray(data)) {
         normalized = data.map((doc) => {
-          const shortUrl = doc.shortUrl || `${import.meta.env.VITE_BASE_URL || ""}small/${doc.shortid}`;
+          const shortUrl = doc.shortUrl || `${BASE}small/${doc.shortid}`;
           const bigUrl = doc.bigurl || doc.bigUrl || doc.bigURL || "";
           const hostname = (() => { try { return new URL(bigUrl).hostname } catch (e) { return '' } })();
           const brand = hostname ? getBrand(hostname) : 'misc';
@@ -114,7 +108,7 @@ export const useURL = () => {
         });
       } else if (data && Array.isArray(data.docs)) {
         normalized = data.docs.map((doc) => {
-          const shortUrl = doc.shortUrl || `${import.meta.env.VITE_BASE_URL || ""}small/${doc.shortid}`;
+          const shortUrl = doc.shortUrl || `${BASE}small/${doc.shortid}`;
           const bigUrl = doc.bigurl || doc.bigUrl || doc.bigURL || "";
           const hostname = (() => { try { return new URL(bigUrl).hostname } catch (e) { return '' } })();
           const brand = hostname ? getBrand(hostname) : 'misc';
@@ -150,10 +144,9 @@ export const useURL = () => {
       const data = await urlApiCall(bigUrl);
       setShortUrl(data.shortUrl);
       console.log("Short URL: ", data.shortUrl);
-      // Refresh the URLs list after creating a new one
-      fetchUrls();
+      fetchUrls(); // refresh URLs
     } catch (error) {
-      alert("Failed to generate short URL",error);
+      alert("Failed to generate short URL", error);
     } finally {
       setLoading(false);
     }
@@ -162,7 +155,6 @@ export const useURL = () => {
   const updateLabel = async (id, label) => {
     try {
       const res = await updateUrlLabel(id, label);
-      // update local state
       setUrls((prev) => prev.map(u => u._id === id ? { ...u, title: label, label } : u));
       return res;
     } catch (err) {
